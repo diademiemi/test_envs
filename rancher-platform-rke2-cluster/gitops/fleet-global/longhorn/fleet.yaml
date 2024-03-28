@@ -1,0 +1,37 @@
+defaultNamespace: longhorn-system
+
+helm:
+  releaseName: longhorn
+  chart: longhorn
+  repo: https://charts.rancher.io/
+  version: "103.2.1+up1.5.3"
+
+  values:
+    persistence:
+      defaultClass: true
+      defaultClassReplicaCount: 1
+      defaultFsType: xfs
+      reclaimPolicy: Delete
+    defaultSettings:
+      backupTarget: "s3://longhorn-backups-upstream@minio/"
+      backupTargetCredentialSecret: "minio-longhorn-backups"
+      allowRecurringJobWhileVolumeDetached: true
+
+targetCustomizations:
+- name: personal
+  clusterSelector:
+    matchLabels:
+      identifier/name: personal
+  helm:
+    values:
+      defaultSettings:
+        backupTarget: "s3://longhorn-backups-personal@minio/"
+
+- name: public
+  clusterSelector:
+    matchLabels:
+      identifier/name: public
+  helm:
+    values:
+      defaultSettings:
+        backupTarget: "s3://longhorn-backups-public@minio/"
