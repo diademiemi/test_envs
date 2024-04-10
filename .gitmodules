@@ -1,9 +1,12 @@
 [submodule "rancher-platform-rke2-cluster/terraform"]
 	path = rancher-platform-rke2-cluster/terraform
 	url = https://github.com/diademiemi/terraform_standard_environment.git
+	branch = main
 [submodule "rke2-cluster/terraform"]
 	path = rke2-cluster/terraform
 	url = https://github.com/diademiemi/terraform_standard_environment.git
+	branch = main
 [submodule "minecraft-testenv/terraform"]
 	path = minecraft-testenv/terraform
 	url = https://github.com/diademiemi/terraform_standard_environment.git
+	branch = main
