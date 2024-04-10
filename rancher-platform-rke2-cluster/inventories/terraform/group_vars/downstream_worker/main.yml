@@ -1,0 +1,3 @@
+---
+rancher_node_command_args: "--worker"
+...

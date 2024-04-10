@@ -1,0 +1,12 @@
+---
+rancher_domain: upstream.terraform.test
+rancher_url: "https://{{ rancher_domain }}"
+
+rancher_users:  # Made with Terraform
+  - name: "root"
+    username: "root"
+    enabled: true
+    password: "ChangeMe!2024"
+    role_id: admin
+
+...

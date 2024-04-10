@@ -1,0 +1,30 @@
+---
+rancher_helm_server_hostname: "{{ rancher_domain }}"
+
+_rancher_tls_source: |
+  {% if rancher_tls_source is defined %}
+    {{ rancher_tls_source }}
+  {% else %}
+    {% if provider | default(vm_utils_terraform_provider) == 'libvirt' %}
+      rancher
+    {% else %}
+      letsEncrypt
+    {% endif %}
+  {% endif %}
+
+rancher_values:
+  replicas: 1z
+  hostname: "{{ rancher_helm_server_hostname }}"
+  bootstrapPassword: "{{ rancher_bootstrap_password }}"
+  ingress:
+    enabled: true
+    tls:
+      source: "{{ _rancher_tls_source | trim }}"
+  letsEncrypt:
+    environment: production
+  global:
+    cattle:
+      psp:
+        enabled: false # For rke2
+
+...

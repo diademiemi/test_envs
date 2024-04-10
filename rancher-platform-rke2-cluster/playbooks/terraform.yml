@@ -1,0 +1,11 @@
+- name: Start VMs
+  tags: always, vms
+  ansible.builtin.import_playbook: diademiemi.vm_utils.terraform_inv_mgt
+
+- name: Start VMs & Add to /etc/hosts
+  tags: always, vms
+  ansible.builtin.import_playbook: diademiemi.vm_utils.terraform_vms
+
+- name: Add DNS records
+  tags: always, vms
+  ansible.builtin.import_playbook: diademiemi.vm_utils.terraform_dns
