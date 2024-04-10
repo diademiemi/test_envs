@@ -73,9 +73,9 @@ When not using a trusted certificate, Firefox will be very strict about the cert
 
 ## [Infrastructure Providers](#providers)
 
-The default domain for all the providers is `terraform.test`. You can change this by setting the Terraform `default_domain` variable. However, it might be easier to just edit this with Ansible after the infrastructure is deployed.
+The default domain for all the providers is `terraform.test`. You can change this by setting the Terraform `default_domain` variable, e.g. `export TF_VAR_default_domain=example.com`.
 
-The domain deployed within the VMs has no effect on the DNS records made, it is just to set a hostname. Only subdomains are passed through to the DNS provider, e.g. `upstream.terraform.test` would be passed through as `upstream`. This way, the DNS provider vars can be set to any domain.
+The domain deployed within the VMs has no effect on the DNS records made (except for the /etc/hosts provider), it is just to set a hostname. Only subdomains are passed through to the DNS provider, e.g. `upstream.terraform.test` would be passed through as `upstream`. This way, the DNS provider vars can be set to any domain.
 
 ### [Hetzner](#hetzner)
 Status: Done  

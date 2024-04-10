@@ -47,9 +47,6 @@ ansible-playbook -i inventories/terraform playbooks/terraform.yml
 ```
 
 ## [Deploy the Rancher Platform](#deploy)
-The playbook takes two optional variables that may be important for your environment:
-- `rancher_tls_source`: The source of the TLS certificates for Rancher. Options are `letsEncrypt` or `rancher`. If `rancher` is selected, the certificate will not be trusted by browsers. The default is `rancher` for Libvirt and `letsEncrypt` for all other providers.
-- `rancher_domain`: The domain to use for the Rancher platform. The default is `upstream.terraform.test`.
 ```bash
 ansible-playbook -i inventories/terraform playbooks/rke2.yml
 ```
@@ -65,9 +62,9 @@ ansible-playbook -i inventories/terraform playbooks/terraform.yml -e state=destr
 
 ## [Infrastructure Providers](#providers)
 
-The default domain for all the providers is `terraform.test`. You can change this by setting the Terraform `default_domain` variable. However, it might be easier to just edit this with Ansible after the infrastructure is deployed.
+The default domain for all the providers is `terraform.test`. You can change this by setting the Terraform `default_domain` variable, e.g. `export TF_VAR_default_domain=example.com`.
 
-The domain deployed within the VMs has no effect on the DNS records made, it is just to set a hostname. Only subdomains are passed through to the DNS provider, e.g. `upstream.terraform.test` would be passed through as `upstream`. This way, the DNS provider vars can be set to any domain.
+The domain deployed within the VMs has no effect on the DNS records made (except for the /etc/hosts provider), it is just to set a hostname. Only subdomains are passed through to the DNS provider, e.g. `upstream.terraform.test` would be passed through as `upstream`. This way, the DNS provider vars can be set to any domain.
 
 ### [Hetzner](#hetzner)
 Status: Done  
