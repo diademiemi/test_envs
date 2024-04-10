@@ -10,7 +10,7 @@ This project is a collection of Ansible playbooks and roles to deploy a simple M
 - [Usage](#usage)
   - [Preparation](#preparation)
   - [Launch the infrastructure](#launch-the-infrastructure)
-  - [Deploy the Rancher Platform](#deploy-the-rancher-platform)
+  - [Deploy the environment](#deploy-the-environment)
   - [Stop the infrastructure](#stop-the-infrastructure)
 - [Notes](#notes)
 - [Infrastructure](#infrastructure)
@@ -46,7 +46,7 @@ Read the [Infrastructure](#infra) section for more information on variables and 
 ansible-playbook -i inventories/terraform playbooks/terraform.yml
 ```
 
-## [Deploy the Rancher Platform](#deploy)
+## [Deploy the environment](#deploy)
 ```bash
 ansible-playbook -i inventories/terraform playbooks/mc.yml
 ```
