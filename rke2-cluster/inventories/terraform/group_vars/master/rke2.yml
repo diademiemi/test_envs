@@ -1,0 +1,10 @@
+---
+
+cni_plugin: "cilium"
+# rke2_type: server
+rke2_custom_config: |
+  node-taint:
+    - "CriticalAddonsOnly=true:NoExecute"
+  cni: "{{ cni_plugin }}"
+
+...

@@ -1,0 +1,9 @@
+---
+- name: Set up RKE2
+  hosts: master, worker
+  gather_facts: true
+  roles:
+    - { role: diademiemi.rke2, tags: ['rke2']}
+    - { role: diademiemi.helm, tags: ['helm']}
+
+...
