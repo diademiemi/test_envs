@@ -2,14 +2,12 @@
 - name: Deploy MC server
   hosts: all
   vars:
-    minecraft_server_dest: "/home/diademiemi/purpur"
+    minecraft_server_dest: "{{ ansible_user_dir}}/purpur"
   tasks:
-    # - name: Install Java 17 on Ubuntu
-    #   tags: java
-    #   ansible.builtin.apt:
-    #     name: openjdk-17-jre-headless
-    #     state: present
-    #     update_cache: true
+    - name: Update apt cache
+      tags: apt
+      ansible.builtin.apt:
+        update_cache: true
 
     - name: Install pip
       tags: python
@@ -19,21 +17,30 @@
         python_pip_global_packages:
           - name: bs4
 
+    - name: Install java 17
+      tags: java
+      ansible.builtin.apt:
+        name: openjdk-17-jre-headless
+        state: present
+
     - name: Install a Purpur server
+      tags: mc
       diademiemi.minecraft.server:
         path: "{{ minecraft_server_dest }}"
         type: purpur  # purpur/paper/spigot/vanilla
         version: 1.20.4  # Server version
         build: latest  # Build number, "latest" fetches the latest build
         java_opts: 'aikar'  # empty string defaults to just memory opts, "aikar" adds Aikar's flags, any other string adds that string to the flags
-        min_memory: "8192"  # In MB
-        max_memory: "16384"  # In MB
-        plugins:
+        min_memory: "4096"  # In MB
+        max_memory: "8192"  # In MB
+        plugins: "{{ _plugins | list + additional_plugins | default([]) | list }}"
           # - name: "Jar File Name"
           #   source: "https://example.com/path/to/jar.jar"
           #   type: url/bukkit/spigot/hangar
           #   version: "1234567"  # Only for bukkit/hangar, "latest" fetches the latest version
           #   state: present/absent/download  # Download forces redownload
+      vars:
+        _plugins:
           - name: EssentialsX
             source: https://ci.ender.zone/job/EssentialsX/1531/artifact/jars/EssentialsX-2.21.0-dev+24-0af4436.jar
             type: url  # Downloads straight from the URL

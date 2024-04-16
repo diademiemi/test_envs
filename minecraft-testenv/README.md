@@ -15,6 +15,7 @@ This project is a collection of Ansible playbooks and roles to deploy a simple M
 - [Notes](#notes)
 - [Infrastructure](#infrastructure)
   - [Infrastructure Providers](#infrastructure-providers)
+    - [Localhost](#localhost)
     - [Hetzner](#hetzner)
     - [DigitalOcean](#digitalocean)
     - [Libvirt](#libvirt)
@@ -65,6 +66,16 @@ ansible-playbook -i inventories/terraform playbooks/terraform.yml -e state=destr
 The default domain for all the providers is `terraform.test`. You can change this by setting the Terraform `default_domain` variable, e.g. `export TF_VAR_default_domain=example.com`.
 
 The domain deployed within the VMs has no effect on the DNS records made (except for the /etc/hosts provider), it is just to set a hostname. Only subdomains are passed through to the DNS provider, e.g. `upstream.terraform.test` would be passed through as `upstream`. This way, the DNS provider vars can be set to any domain.
+
+### [Localhost](#localhost)
+Status: Done
+  
+```bash
+
+```
+
+**Deploy**
+No steps, use `-i inventories/local` for the inventory.
 
 ### [Hetzner](#hetzner)
 Status: Done  
