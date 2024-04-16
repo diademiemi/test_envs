@@ -3,9 +3,9 @@ Test environments I use for development purposes
 
 Test Environment | Description | Platforms
 --- | --- | ---
-[minecraft-testenv](./minecraft-testenv) | A test environment for Minecraft servers | Libvirt, DigitalOcean, Hetzner, localhost
-[rke2-cluster](./rke2-cluster) | A test environment for RKE2 Kubernetes clusters | Libvirt, DigitalOcean, Hetzner
-[rancher-platform-rke2-cluster](./rancher-platform-rke2-cluster) | A test environment for Rancher Platform with an RKE2 Kubernetes cluster | Libvirt, DigitalOcean, Hetzner
+[minecraft-testenv](./minecraft-testenv) | A test environment with a single Minecraft server | Libvirt, DigitalOcean, Hetzner, localhost
+[rke2-cluster](./rke2-cluster) | A test environment with a 6 node RKE2 Kubernetes cluster | Libvirt, DigitalOcean, Hetzner
+[rancher-platform-rke2-cluster](./rancher-platform-rke2-cluster) | A test environment with a 3 node Rancher Platform and a 6 node RKE2 Kubernetes cluster | Libvirt, DigitalOcean, Hetzner
 
 ## Deployment
 Check the README.md in each test environment for deployment instructions.
