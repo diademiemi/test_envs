@@ -1,0 +1,8 @@
+---
+vm_utils_terraform_env: terraform
+vm_utils_terraform_provider: hetzner
+vm_utils_terraform_dns_provider: cloudflare
+# vm_utils_terraform_dns_additional_vars:
+#   cloudflare_default_proxied: 'false'  # Terraform requires string values for booleans
+#   cloudflare_default_ttl: 120
+...

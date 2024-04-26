@@ -10,3 +10,6 @@
 	path = minecraft-testenv/terraform
 	url = https://github.com/diademiemi/terraform_standard_environment.git
 	branch = main
+[submodule "port-forward/terraform"]
+	path = port-forward/terraform
+	url = https://github.com/diademiemi/terraform_standard_environment.git

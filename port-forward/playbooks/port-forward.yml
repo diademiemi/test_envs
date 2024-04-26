@@ -1,0 +1,83 @@
+---
+- name: Import Wireguard role
+  hosts: portforward, localhost
+  tags: wireguard
+  pre_tasks:
+    - name: Prompt for sudo password
+      ansible.builtin.pause:
+        prompt: Enter sudo password to set up Wireguard connection
+        echo: false
+      delegate_to: localhost
+      delegate_facts: true
+      run_once: true
+      register: _vm_utils_terraform_sudo_pass
+      when: ansible_become_password is not defined
+
+    - name: Set sudo password
+      ansible.builtin.set_fact:
+        ansible_become_password: "{{ _vm_utils_terraform_sudo_pass.user_input | default(_vm_utils_terraform_sudo_pass) }}"
+      delegate_to: localhost
+      delegate_facts: true
+      run_once: true
+      when: _vm_utils_terraform_sudo_pass is defined
+  roles:
+    - diademiemi.wireguard
+- name: Set up port forward
+  hosts: portforward
+  tags: portforward
+  handlers:
+    - name: Save iptables rules
+      ansible.builtin.shell: iptables-save > /etc/iptables/rules.v4
+      changed_when: true  # If this is run, that means the rules have changed
+  tasks:
+    - name: Ensure iptables is installed
+      ansible.builtin.package:
+        name: iptables-persistent
+        state: present
+
+    - name: Set Masquerade
+      ansible.builtin.iptables:
+        table: "{{ table | default('nat') }}"
+        chain: "{{ item.chain | default('POSTROUTING') }}"
+        protocol: "{{ item.protocol | default('tcp') }}"
+        jump: "{{ item.jump | default('MASQUERADE') }}"
+        source: "{{ item.source | default(omit) }}"
+        destination: "{{ item.destination | default(omit) }}"
+        state: "{{ item.state | default('present') }}"
+      failed_when: false  # Ignore errors if the rule already exists
+      loop:
+        - protocol: tcp
+          source: 0.0.0.0/0
+      notify: Save iptables rules
+
+    - name: Place iptables rules
+      ansible.builtin.iptables:
+        table: "{{ item.table | default('nat') }}"
+        chain: "{{ item.chain | default('PREROUTING') }}"
+        protocol: "{{ item.protocol | default('tcp') }}"
+        jump: "{{ item.jump | default('DNAT') }}"
+        destination: "{{ item.from_destination | default(omit) }}"
+        destination_port: "{{ item.from_port | default(item.port) }}"
+        to_destination: "{{ item.to_destination | default('192.168.150.2') }}:{{ item.to_port | default(item.port) }}"  # default to 192.168.150.2 as this is the default IP for localhost
+        state: "{{ item.state | default('present') }}"
+      loop: "{{ portforward_rules | default(_portforward_rules) }}"
+      vars: 
+        _portforward_rules:
+        - protocol: tcp
+          from_port: 80
+          to_port: 80
+        - protocol: tcp
+          from_port: 443
+          to_port: 443
+        - protocol: tcp
+          from_port: 25565
+          to_port: 25565
+        - protocol: tcp
+          from_port: 19132
+          to_port: 19132
+        - protocol: udp
+          from_port: 19132
+          to_port: 19132
+      notify: Save iptables rules
+
+...

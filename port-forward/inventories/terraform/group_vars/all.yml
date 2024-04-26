@@ -1,0 +1,9 @@
+wireguard_master_inventory_hostname: portforward
+wireguard_iptables_forward: true
+wireguard_hosts: ["portforward", "localhost"]
+
+wireguard_subnet: "192.168.150.0/24"
+# wireguard_hosts is a list of names, e.g. ["host1", "host2"]
+# Find the index of the current host in the list
+# Use this with the ipaddr filter to get the IP address of the current host
+wireguard_ip: "{{ wireguard_subnet | ansible.utils.ipaddr('net') | ansible.utils.ipaddr(wireguard_hosts.index(inventory_hostname) + 1) }}"
