@@ -33,7 +33,7 @@
         java_opts: 'aikar'  # empty string defaults to just memory opts, "aikar" adds Aikar's flags, any other string adds that string to the flags
         min_memory: "4096"  # In MB
         max_memory: "8192"  # In MB
-        plugins: "{{ _plugins | list + additional_plugins | default([]) | list }}"
+        plugins: "{{ (_plugins | default([]) | list) + (additional_plugins | from_json | default([]) | list) }}"
           # - name: "Jar File Name"
           #   source: "https://example.com/path/to/jar.jar"
           #   type: url/bukkit/spigot/hangar
