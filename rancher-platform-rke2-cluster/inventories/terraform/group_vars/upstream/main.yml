@@ -13,7 +13,7 @@ _rancher_tls_source: |
   {% endif %}
 
 rancher_values:
-  replicas: 1z
+  replicas: 1
   hostname: "{{ rancher_helm_server_hostname }}"
   bootstrapPassword: "{{ rancher_bootstrap_password }}"
   ingress:
