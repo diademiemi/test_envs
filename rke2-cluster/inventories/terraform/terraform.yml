@@ -1,7 +1,7 @@
 ---
 plugin: cloud.terraform.terraform_provider
-project_path: "./terraform/infra/hetzner/"
+project_path: "./terraform/infra/digitalocean/"
 state_file: ""
 search_child_modules: true
-workspace: "hetzner-terraform"
+workspace: "digitalocean-terraform"
 ...
