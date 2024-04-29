@@ -91,6 +91,7 @@ export TF_VAR_digitalocean_api_token=dop_v1_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 # OPTIONAL
 export TF_VAR_default_domain=terraform.test
 export TF_VAR_default_region=ams3
+export TF_VAR_default_project="test"
 ```
 
 **Deploy**

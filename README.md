@@ -3,6 +3,7 @@ Test environments I use for development purposes
 
 Test Environment | Description | Platforms
 --- | --- | ---
+[port-forward](./port-forward) | Port forward local ports to a remote server through Wireguard | DigitalOcean, Hetzner
 [minecraft-testenv](./minecraft-testenv) | A test environment with a single Minecraft server | Libvirt, DigitalOcean, Hetzner, localhost
 [rke2-cluster](./rke2-cluster) | A test environment with a 6 node RKE2 Kubernetes cluster | Libvirt, DigitalOcean, Hetzner
 [rancher-platform-rke2-cluster](./rancher-platform-rke2-cluster) | A test environment with a 3 node Rancher Platform and a 6 node RKE2 Kubernetes cluster | Libvirt, DigitalOcean, Hetzner
