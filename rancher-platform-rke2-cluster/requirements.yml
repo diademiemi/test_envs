@@ -6,6 +6,7 @@ collections:
   - name: diademiemi.utils
   - name: diademiemi.python
   - name: diademiemi.vm_utils
+  - name: diademiemi.git_utils
 
 roles:
   - name: diademiemi.rke2
