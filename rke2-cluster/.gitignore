@@ -17,7 +17,7 @@
 /changelogs/.plugin-cache.yaml
 output/
 .collection_root/*
-
+**/inventories/**/terraform.yml
 **/roles/*.*
 !**/roles/requirements.yml
 **/collections/**
