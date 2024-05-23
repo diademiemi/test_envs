@@ -1,0 +1,16 @@
+---
+collections:
+  - name: cloud.terraform
+    type: git
+    source: https://github.com/diademiemi/cloud.terraform.git
+  - name: diademiemi.python
+  - name: diademiemi.utils
+  - name: diademiemi.vm_utils
+  - name: diademiemi.git_utils
+  - name: diademiemi.kubernetes_utils
+
+roles:
+  - name: diademiemi.rke2
+  - name: diademiemi.helm
+
+...

@@ -1,0 +1,92 @@
+---
+- name: Configure AWX
+  hosts: awx
+  module_defaults:
+    group/awx.awx.controller:
+      controller_host: "{{ controller_host }}"
+      controller_username: "{{ controller_username }}"
+      controller_password: "{{ controller_password }}"
+      validate_certs: "{{ controller_validate_certs }}"
+
+  tasks:
+    - name: Create AWX organization
+      awx.awx.organization:
+        name: "{{ item.name }}"
+        description: "{{ item.description }}"
+        galaxy_credentials: "{{ item.galaxy_credentials | default(['Ansible Galaxy']) }}"
+        state: "{{ item.state | default('present') }}"
+      loop: "{{ awx_organizations }}"
+      retries: 5
+      delay: 10
+      until: organization is succeeded
+      register: organization
+
+    - name: Create AWX Project Credential
+      awx.awx.credential:
+        name: "{{ item.name }}"
+        description: "{{ item.description }}"
+        credential_type: "{{ item.credential_type }}"
+        inputs: "{{ item.inputs | default(omit) }}"
+        organization: "{{ item.organization }}"
+        state: present
+      loop: "{{ awx_project_credentials }}"
+      when: item.name is defined
+
+    - name: Create AWX Project
+      awx.awx.project:
+        name: "{{ item.name }}"
+        description: "{{ item.description | default(omit) }}"
+        scm_type: "{{ item.scm_type }}"
+        scm_url: "{{ item.scm_url }}"
+        scm_branch: "{{ item.scm_branch }}"
+        scm_credential: "{{ item.scm_credential | default(omit) }}"
+        organization: "{{ item.organization }}"
+        state: present
+      loop: "{{ awx_projects }}"
+
+    - name: Create AWX Credential
+      awx.awx.credential:
+        name: "{{ item.name }}"
+        description: "{{ item.description | default(omit) }}"
+        credential_type: "{{ item.credential_type }}"
+        inputs: "{{ item.inputs | default(omit) }}"
+        organization: "{{ item.organization }}"
+        state: present
+      loop: "{{ awx_credentials }}"
+
+    - name: Create AWX Inventory
+      awx.awx.inventory:
+        name: "{{ item.name }}"
+        description: "{{ item.description | default(omit) }}"
+        organization: "{{ item.organization }}"
+        state: present
+      loop: "{{ awx_inventories }}"
+
+    - name: Create AWX Inventory Source
+      awx.awx.inventory_source:
+        name: "{{ item.name }}"
+        description: "{{ item.description | default(omit) }}"
+        inventory: "{{ item.inventory }}"
+        source: "{{ item.source }}"
+        source_vars: "{{ item.source_vars | default(omit) }}"
+        credential: "{{ item.credential | default(omit) }}"
+        update_on_launch: "{{ item.update_on_launch | default(false) }}"
+        organization: "{{ item.organization }}"
+        state: present
+      loop: "{{ awx_inventory_sources }}"
+
+    - name: Create AWX job template
+      awx.awx.job_template:
+        name: "{{ item.name }}"
+        description: "{{ item.description | default(omit) }}"
+        project: "{{ item.project }}"
+        playbook: "{{ item.playbook }}"
+        inventory: "{{ item.inventory }}"
+        credential: "{{ item.credential | default(omit) }}"
+        job_type: "{{ item.job_type }}"
+        host_config_key: "{{ item.host_config_key | default(omit) }}"
+        organization: "{{ item.organization }}"
+        state: present
+      loop: "{{ awx_job_templates }}"
+
+...

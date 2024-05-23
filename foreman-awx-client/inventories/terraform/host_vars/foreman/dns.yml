@@ -1,0 +1,9 @@
+---
+dns_domain: "terraform.test"
+
+dns_forwarders:
+  - "9.9.9.9"
+
+dns_reverse_zone: "21.168.192.in-addr.arpa"
+
+...

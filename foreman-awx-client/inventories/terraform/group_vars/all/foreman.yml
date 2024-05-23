@@ -1,0 +1,38 @@
+---
+foreman_initial_location: "Testing"
+foreman_initial_organization: "Testing"
+foreman_location_name: "{{ foreman_initial_location }}"
+foreman_organization_name: "{{ foreman_initial_organization }}"
+
+foreman_network_name: "PXE"
+foreman_network_boot_mode: "DHCP"
+foreman_network_netid: "{{ foreman_network | ansible.utils.ipaddr('network') }}"
+foreman_network_mask: "{{ foreman_network | ansible.utils.ipaddr('netmask') }}"
+foreman_network_primary_dns: "{{ dhcp_option_domain_name_servers | split(' ') | first }}"
+foreman_network_domains:
+  - "{{ dhcp_option_domain_name }}"
+foreman_network_gateway: "{{ dhcp_option_routers | split(' ') | first }}"
+foreman_network_dhcp_name: "{{ ansible_fqdn }}"
+foreman_network_tftp_name: "{{ ansible_fqdn }}"
+foreman_network_dns_name: "{{ ansible_fqdn }}"
+
+foreman_network_range_start: "{{ dhcp_range | split(' ') | first }}"
+foreman_network_range_end: "{{ dhcp_range | split(' ') | last }}"
+
+foreman_hostgroup_name: "pxe_booted"
+
+foreman_os_release_name: "focal"
+foreman_os_name: "Ubuntu"
+foreman_os_major: "20.04"
+foreman_os_family: "Debian"
+foreman_os_architectures: "x86_64"
+foreman_os_media: "Ubuntu mirror"
+foreman_os_password_hash: "SHA512"
+foreman_os_partition_tables:
+  - "Preseed default"
+
+foreman_bare_metal_hostgroup_name: "BareMetal"
+foreman_bare_metal_hostgroup_domain: "{{ dns_domain }}"
+foreman_bare_metal_hostgroup_subnet: "{{ foreman_network_name }}"
+
+...

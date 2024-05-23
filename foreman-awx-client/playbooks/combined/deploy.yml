@@ -1,0 +1,14 @@
+---
+- name: Register AWX to Foreman
+  tags: foreman, awx, register, always
+  ansible.builtin.import_playbook: 01-register-awx.yml
+
+- name: Configure AWX
+  tags: awx, awx-configure, always
+  ansible.builtin.import_playbook: 02-configure-awx.yml
+
+- name: Run Foreman tasks that depend on AWX
+  tags: foreman, foreman-configure, always
+  ansible.builtin.import_playbook: 03-configure-foreman.yml
+
+...

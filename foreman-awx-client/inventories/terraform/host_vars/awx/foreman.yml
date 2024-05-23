@@ -1,0 +1,7 @@
+---
+foreman_server_url: "https://foreman.terraform.test"
+foreman_server_username: "{{ foreman_username }}"
+foreman_server_password: "{{ foreman_password }}"
+foreman_validate_certs: false
+
+...

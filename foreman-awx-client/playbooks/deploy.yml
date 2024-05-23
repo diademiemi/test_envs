@@ -1,0 +1,14 @@
+---
+- name: Install Foreman
+  tags: foreman, always
+  ansible.builtin.import_playbook: foreman/deploy.yml
+
+- name: Install AWX
+  tags: awx, always
+  ansible.builtin.import_playbook: awx/deploy.yml
+
+- name: Run tasks that depend on both Foreman and AWX
+  tags: awx, foreman, always
+  ansible.builtin.import_playbook: combined/deploy.yml
+
+...

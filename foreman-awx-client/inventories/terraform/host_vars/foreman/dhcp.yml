@@ -1,0 +1,11 @@
+---
+dhcp_netid: "{{ foreman_network | ansible.utils.ipaddr('network') }}"
+dhcp_netmask: "{{ foreman_network | ansible.utils.ipaddr('netmask') }}"
+dhcp_option_routers: "{{ foreman_network | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
+dhcp_range: "{{ foreman_network | ansible.utils.ipaddr('100') | ansible.utils.ipaddr('address') }} \
+  {{ foreman_network | ansible.utils.ipaddr('200') | ansible.utils.ipaddr('address') }}"
+
+dhcp_option_domain_name_servers: "{{ ansible_default_ipv4.address }}"
+dhcp_option_domain_name: "terraform.test"
+
+...

@@ -1,0 +1,78 @@
+---
+awx_hostname: "awx.terraform.test"
+awx_admin_password: "admin"
+
+awx_ingress_class_name: nginx
+# awx_ingress_annotations: |
+#   nginx.ingress.kubernetes.io/configuration-snippet: |
+#       more_set_headers "X-Forwarded-For $http_x_forwarded_for";
+
+awx_extra_settings:
+  - setting: REMOTE_HOST_HEADERS
+    value: "['HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR', 'REMOTE_HOST']"
+
+awx_dns_server: "{{ dns_server }}"
+
+controller_host: "{{ awx_hostname }}"
+controller_username: "admin"
+controller_password: "{{ awx_admin_password }}"
+controller_validate_certs: false
+
+awx_organizations:
+  - name: "Testing"
+    description: "Testing"
+
+awx_projects:
+  - name: "Experiments"
+    organization: "{{ awx_organizations[0].name }}"
+    description: "Project for experiments"
+    scm_type: "git"
+    scm_url: "https://github.com/diademiemi/test_envs.git"
+    scm_branch: "main"
+
+awx_credentials:
+  - name: "Foreman"
+    organization: "{{ awx_organizations[0].name }}"
+    description: "To access the Foreman host"
+    credential_type: "Red Hat Satellite 6"
+    inputs:
+      username: "admin"
+      password: "admin"
+      host: "{{ foreman_url }}"
+  - name: "Hosts"
+    organization: "{{ awx_organizations[0].name }}"
+    description: "User created by Foreman provisioning"
+    credential_type: "Machine"
+    inputs:
+      username: "{{ system_user }}"
+      become_password: "{{ system_password }}"
+
+awx_inventories:
+  - name: "Foreman"
+    organization: "{{ awx_organizations[0].name }}"
+    description: "Inventory for Foreman hosts"
+
+awx_inventory_sources:
+  - name: "Foreman"
+    organization: "{{ awx_organizations[0].name }}"
+    description: "Inventory source for Foreman hosts"
+    inventory: "{{ awx_inventories[0].name }}"
+    source: "satellite6"
+    credential: "{{ awx_credentials[0].name }}"
+    update_on_launch: true
+    source_vars:
+      validate_certs: false
+      host_filters: 'hostgroup="{{ foreman_hostgroup_name }}"'
+
+awx_job_templates:
+  - name: "{{ job_template_name }}"
+    organization: "{{ awx_organizations[0].name }}"
+    description: "Job template to test running Ansible on a host that has been provisioned by Foreman"
+    project: "{{ awx_projects[0].name }}"
+    playbook: "foreman-awx-client/awx/playbooks/example.yml"
+    inventory: "Foreman"
+    credential: "{{ awx_credentials[1].name }}"
+    job_type: "run"
+    host_config_key: "secret"
+
+...

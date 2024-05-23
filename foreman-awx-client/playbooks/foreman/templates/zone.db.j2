@@ -1,0 +1,12 @@
+@   IN  SOA     {{ dns_primary_ns_name }}. root.{{ dns_domain }}. (
+                                                1001    ;Serial
+                                                3H      ;Refresh
+                                                15M     ;Retry
+                                                1W      ;Expire
+                                                1D      ;Minimum TTL
+                                                )
+
+;Name Server Information
+@      IN  NS      {{ dns_primary_ns_name }}.
+
+{{ dns_records }}

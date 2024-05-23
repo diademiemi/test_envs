@@ -1,0 +1,107 @@
+- name: Configure Foreman
+  hosts: awx
+  module_defaults:
+    group/theforeman.foreman.foreman:
+      server_url: "{{ foreman_server_url }}"
+      username: "{{ foreman_server_username }}"
+      password: "{{ foreman_server_password }}"
+      validate_certs: "{{ foreman_validate_certs }}"
+
+  tasks:
+    - name: Create bare metal hostgroup  # noqa args[module]
+      theforeman.foreman.hostgroup:
+        name: "{{ foreman_bare_metal_hostgroup_name }}"
+        domain: "{{ foreman_bare_metal_hostgroup_domain | default(omit) }}"
+        subnet: "{{ foreman_bare_metal_hostgroup_subnet | default(omit) }}"
+        architecture: "{{ foreman_bare_metal_hostgroup_architecture | default(omit) }}"
+        operatingsystem: "{{ foreman_bare_metal_hostgroup_operatingsystem | default(omit) }}"
+        medium: "{{ foreman_bare_metal_hostgroup_medium | default(omit) }}"
+        ptable: "{{ foreman_bare_metal_hostgroup_partition_table | default(omit) }}"
+        pxe_loader: "{{ foreman_bare_metal_hostgroup_pxe_loader | default(omit) }}"
+        root_pass: "{{ foreman_bare_metal_hostgroup_root_pass | default(omit) }}"
+        parameters: "{{ foreman_bare_metal_hostgroup_parameters | default(omit) }}"
+        environment: "{{ foreman_bare_metal_hostgroup_environment | default(omit) }}"
+        state: present
+
+    - name: Check if host is already registered  # noqa args[module]
+      theforeman.foreman.host_info:
+        name: "{{ ansible_fqdn }}"
+      register: foreman_host_info
+
+    - name: Register host
+      when: foreman_host_info.host.id is not defined
+      block:
+        - name: Update host entry  # noqa args[module]
+          theforeman.foreman.host:
+            name: "{{ ansible_fqdn }}"
+            location: "{{ foreman_location_name }}"
+            organization: "{{ foreman_organization_name }}"
+            hostgroup: "{{ foreman_bare_metal_hostgroup_name }}"
+            architecture: "{{ foreman_os_architectures }}"
+            operatingsystem: "{{ foreman_os_name }} \
+              {% if foreman_os_major is defined %}{{ foreman_os_major }}{% endif %}\
+              {% if foreman_os_minor is defined %}.{{ foreman_os_minor }}{% endif %}"
+            domain: "{{ foreman_bare_metal_hostgroup_domain | default(omit) }}"
+            interfaces_attributes:
+              - type: "interface"
+                primary: true
+                domain: "{{ foreman_bare_metal_hostgroup_domain | default(omit) }}"
+                identifier: "{{ ansible_default_ipv4.interface }}"
+                ip: "{{ ansible_default_ipv4.address }}"
+                mac: "{{ ansible_default_ipv4.macaddress }}"
+                managed: true
+            state: present
+
+        - name: Get bare metal hostgroup ID  # noqa args[module]
+          theforeman.foreman.hostgroup_info:
+            name: "{{ foreman_bare_metal_hostgroup_name }}"
+          register: foreman_bare_metal_hostgroup_info
+
+        - name: Get location ID  # noqa args[module]
+          theforeman.foreman.location:
+            name: "{{ foreman_location_name }}"
+          register: foreman_location_info
+
+        - name: Get organization ID  # noqa args[module]
+          theforeman.foreman.organization_info:
+            name: "{{ foreman_organization_name }}"
+          register: foreman_organization_info
+
+        - name: Get OS ID  # noqa args[module]
+          theforeman.foreman.operatingsystem:
+            name: "{{ foreman_os_name }}"
+            major: "{{ foreman_os_major | default(omit) }}"
+            minor: "{{ foreman_os_minor | default(omit) }}"
+            family: "{{ foreman_os_family | default(omit) }}"
+            release_name: "{{ foreman_os_release_name | default(omit) }}"
+            password_hash: "{{ foreman_os_password_hash | default(omit) }}"
+          register: foreman_operatingsystem_info
+
+        - name: Get registration command
+          ansible.builtin.uri:
+            url: "{{ foreman_server_url }}/api/registration_commands"
+            method: POST
+            return_content: true
+            status_code: 200
+            user: "{{ foreman_server_username }}"
+            password: "{{ foreman_server_password }}"
+            force_basic_auth: true
+            headers:
+              Accept: application/json
+            body_format: json
+            body:
+              organization_id: "{{ foreman_organization_info.organization.id }}"
+              location_id: "{{ foreman_location_info.entity.locations.0.id }}"
+              hostgroup_id: "{{ foreman_bare_metal_hostgroup_info.hostgroup.id }}"
+              operatingsystem_id: "{{ foreman_operatingsystem_info.entity.operatingsystems.0.id }}"
+              insecure: true
+            validate_certs: "{{ foreman_validate_certs }}"
+          register: foreman_registration_command
+
+        - name: Run registration command  # Running this allows us to run a provisioning template and gather facts
+          ansible.builtin.shell: |
+            {{ foreman_registration_command.json.registration_command }}
+          args:
+            creates: /etc/foreman
+
+...

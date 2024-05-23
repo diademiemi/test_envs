@@ -1,0 +1,18 @@
+---
+awx_username: "admin"
+awx_password: "admin"
+awx_url: "https://awx.terraform.test"
+
+foreman_username: "admin"
+foreman_password: "admin"
+foreman_url: "https://foreman.terraform.test"
+
+system_user: "ansible"
+system_password: "ansible"
+
+dns_server: "192.168.21.50"
+dns_domain: "terraform.test"
+
+job_template_name: "ForemanCallback"
+
+...

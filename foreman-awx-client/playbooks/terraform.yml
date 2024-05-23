@@ -1,0 +1,15 @@
+- name: Initialise remote state
+  tags: always, vms
+  ansible.builtin.import_playbook: diademiemi.vm_utils.terraform_remote_backend
+
+- name: Initiliase Ansible dynamic inventory
+  tags: always, vms
+  ansible.builtin.import_playbook: diademiemi.vm_utils.terraform_inv_mgt
+
+- name: Start VMs
+  tags: always, vms
+  ansible.builtin.import_playbook: diademiemi.vm_utils.terraform_vms
+
+- name: Add DNS records
+  tags: always, vms
+  ansible.builtin.import_playbook: diademiemi.vm_utils.terraform_dns

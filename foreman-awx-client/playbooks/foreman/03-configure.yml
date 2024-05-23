@@ -1,0 +1,85 @@
+---
+- name: Configure Foreman
+  hosts: foreman
+  module_defaults:
+    group/theforeman.foreman.foreman:
+      server_url: "{{ foreman_server_url }}"
+      username: "{{ foreman_server_username }}"
+      password: "{{ foreman_server_password }}"
+      validate_certs: "{{ foreman_validate_certs }}"
+
+  handlers:
+    - name: Build PXE Default
+      ansible.builtin.command: |
+        hammer template build-pxe-default
+      changed_when: true
+
+  tasks:
+    - name: Setup subnet  # noqa args[module]
+      theforeman.foreman.subnet:
+        name: "{{ foreman_network_name }}"
+        network: "{{ foreman_network_netid }}"
+        mask: "{{ foreman_network_mask }}"
+        gateway: "{{ foreman_network_gateway | default(omit) }}"
+        from_ip: "{{ foreman_network_range_start | default(omit) }}"
+        to_ip: "{{ foreman_network_range_end | default(omit) }}"
+        boot_mode: "{{ foreman_network_boot_mode | default(omit) }}"
+        dns_primary: "{{ foreman_network_primary_dns | default(omit) }}"
+        dhcp_proxy: "{{ foreman_network_dhcp_name | default(omit) }}"
+        tftp_proxy: "{{ foreman_network_tftp_name | default(omit) }}"
+        dns_proxy: "{{ foreman_network_dns_name | default(omit) }}"
+        vlanid: "{{ foreman_network_vlanid | default(omit) }}"
+        domains: "{{ foreman_network_domains | default(omit) }}"
+        state: present
+
+    - name: Setup OS  # noqa args[module]
+      theforeman.foreman.operatingsystem:
+        name: "{{ foreman_os_name }}"
+        major: "{{ foreman_os_major | default(omit) }}"
+        minor: "{{ foreman_os_minor | default(omit) }}"
+        family: "{{ foreman_os_family | default(omit) }}"
+        release_name: "{{ foreman_os_release_name | default(omit) }}"
+        architectures: "{{ foreman_os_architectures | default(omit) }}"
+        media: "{{ foreman_os_media | default(omit) }}"
+        ptables: "{{ foreman_os_partition_tables | default(omit) }}"
+        provisioning_templates: "{{ foreman_os_provisioning_templates | default([]) | map(attribute='name') | list | flatten }}"
+        parameters: "{{ foreman_os_parameters | default(omit) }}"
+        password_hash: "{{ foreman_os_password_hash | default(omit) }}"
+        state: present
+      notify: Build PXE Default
+
+    - name: Create custom post provisioning template  # noqa args[module]
+      theforeman.foreman.provisioning_template:
+        name: "{{ foreman_custom_post_template_name }}"
+        template: "{{ foreman_custom_post_template }}"
+        kind: snippet
+        state: present
+
+    - name: Set default templates for OS  # noqa args[module]
+      theforeman.foreman.os_default_template:
+        operatingsystem: "{{ foreman_os_name }} \
+          {% if foreman_os_major is defined %}{{ foreman_os_major }}{% endif %}\
+          {% if foreman_os_minor is defined %}.{{ foreman_os_minor }}{% endif %}"
+        provisioning_template: "{{ item.name }}"
+        template_kind: "{{ item.kind }}"
+        state: present
+      loop: "{{ foreman_os_provisioning_templates | default([]) }}"
+      notify: Build PXE Default
+
+    - name: Force download discovery image
+      become: true
+      ansible.builtin.get_url:
+        url: "{{ foreman_discovery_image_url }}"
+        dest: /srv/tftp
+        mode: "0644"
+
+    - name: Extract discovery image
+      become: true
+      ansible.builtin.unarchive:
+        src: /srv/tftp/fdi-image-latest.tar
+        dest: /srv/tftp/boot
+        remote_src: true
+        creates: /srv/tftp/boot/fdi-image
+      notify: Build PXE Default
+
+...

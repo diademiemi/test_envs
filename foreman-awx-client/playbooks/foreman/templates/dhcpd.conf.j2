@@ -1,0 +1,42 @@
+# dhcpd.conf
+omapi-port 7911;
+
+default-lease-time 43200;
+max-lease-time 86400;
+
+ddns-update-style none;
+
+option domain-name "{{ dhcp_option_domain_name }}";
+option domain-name-servers {{ dhcp_option_domain_name_servers }};
+option ntp-servers none;
+
+allow booting;
+allow bootp;
+
+option fqdn.no-client-update    on;  # set the "O" and "S" flag bits
+option fqdn.rcode2            255;
+option pxegrub code 150 = text ;
+
+
+# Bootfile Handoff
+next-server {{ dhcp_option_bootfile_next_server }};
+option architecture code 93 = unsigned integer 16 ;
+if option architecture = 00:06 {
+  filename "grub2/bootia32.efi";
+} elsif option architecture = 00:07 {
+  filename "grub2/bootx64.efi";
+} elsif option architecture = 00:09 {
+  filename "grub2/bootx64.efi";
+} else {
+  filename "pxelinux.0";
+}
+
+log-facility local7;
+
+include "/etc/dhcp/dhcpd.hosts";
+
+subnet {{ dhcp_netid }} netmask {{ dhcp_netmask }} {
+
+  option subnet-mask {{ dhcp_netmask }};
+  option routers {{ dhcp_option_routers }};
+}

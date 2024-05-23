@@ -1,0 +1,67 @@
+- name: Install foreman
+  hosts: foreman
+  tasks:
+    - name: Install ca-certificates
+      become: true
+      ansible.builtin.apt:
+        name: ca-certificates
+        state: present
+
+    - name: Get puppet
+      ansible.builtin.get_url:
+        url: https://apt.puppet.com/puppet7-release-focal.deb
+        dest: /tmp
+        mode: '644'
+
+    - name: Install puppet
+      become: true
+      ansible.builtin.apt:
+        deb: /tmp/puppet7-release-focal.deb
+
+    - name: Get foreman
+      become: true
+      ansible.builtin.get_url:
+        url: https://deb.theforeman.org/foreman.asc
+        dest: /etc/apt/trusted.gpg.d/foreman.asc
+        mode: '644'
+
+    - name: Add foreman focal repo
+      become: true
+      ansible.builtin.apt_repository:
+        repo: deb http://deb.theforeman.org/ focal 3.7
+        state: present
+        filename: foreman
+
+    - name: Add foreman plugins repo
+      become: true
+      ansible.builtin.apt_repository:
+        repo: deb http://deb.theforeman.org/ plugins 3.7
+        state: present
+        filename: foreman
+
+    - name: Update and upgrade apt packages
+      become: true
+      ansible.builtin.apt:
+        upgrade: true
+        update_cache: true
+        cache_valid_time: 86400 # 1 day
+
+    - name: Install foreman-installer
+      become: true
+      ansible.builtin.apt:
+        name: foreman-installer
+        state: present
+
+    - name: Setup foreman standalone
+      become: true
+      ansible.builtin.command: |
+        foreman-installer --foreman-initial-location '{{ foreman_initial_location }}' \
+        --foreman-initial-organization '{{ foreman_initial_organization }}' \
+        --foreman-initial-admin-username '{{ foreman_initial_admin_username }}' \
+        --foreman-initial-admin-password '{{ foreman_initial_admin_password }}' \
+        --enable-foreman-plugin-discovery \
+        --foreman-proxy-plugin-discovery-install-images=true
+      args:
+        creates: /etc/foreman
+
+...

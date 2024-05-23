@@ -1,0 +1,85 @@
+---
+- name: Set up DHCP, DNS TFTP
+  hosts: foreman
+  module_defaults:
+    group/theforeman.foreman.foreman:
+      server_url: "{{ foreman_server_url }}"
+      username: "{{ foreman_server_username }}"
+      password: "{{ foreman_server_password }}"
+      validate_certs: "{{ foreman_validate_certs }}"
+
+  handlers:
+    - name: Restart dhcpd
+      become: true
+      ansible.builtin.service:
+        name: isc-dhcp-server
+        state: restarted
+
+    - name: Restart dns
+      become: true
+      ansible.builtin.service:
+        name: named
+        state: restarted
+
+  tasks:
+    - name: Install DHCP, DNS and TFTP
+      become: true
+      ansible.builtin.apt:
+        name:
+          - isc-dhcp-server
+          - tftp-hpa
+          - bind9
+        state: present
+
+    - name: Enable DHCP server
+      ansible.builtin.service:
+        name: isc-dhcp-server
+        enabled: true
+        state: started
+
+    - name: Enable DNS server
+      ansible.builtin.service:
+        name: named
+        enabled: true
+        state: started
+
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
+
+    - name: Setup DHCP, TFTP and Ansible
+      become: true
+      ansible.builtin.command: |
+        foreman-installer \
+        --enable-foreman-proxy \
+        --foreman-proxy-dhcp=true \
+        --foreman-proxy-dhcp-gateway={{ dhcp_option_routers }} \
+        --foreman-proxy-dhcp-range="{{ dhcp_range }}" \
+        --foreman-proxy-dhcp-nameservers="{{ dhcp_option_domain_name_servers }}" \
+        --foreman-proxy-dhcp-omapi-port=7911 \
+        --foreman-proxy-dhcp-ping-free-ip=true \
+        --foreman-proxy-dhcp-provider=isc \
+        --foreman-proxy-dhcp-server="127.0.0.1" \
+        --foreman-proxy-dhcp-interface="{{ ansible_default_ipv4.interface }}" \
+        --foreman-proxy-dns=true \
+        --foreman-proxy-dns-managed=true \
+        --foreman-proxy-dns-provider=nsupdate \
+        --foreman-proxy-dns-zone="{{ foreman_domain_name }}" \
+        --foreman-proxy-dns-server="127.0.0.1" \
+        --foreman-proxy-dns-interface="{{ ansible_default_ipv4.interface }}" \
+        --foreman-proxy-keyfile=/etc/bind/rndc.key \
+        --foreman-proxy-dns-reverse="{{ dns_reverse_zone }}" \
+        --foreman-proxy-tftp=true \
+        --foreman-proxy-tftp-listen-on=https \
+        --foreman-proxy-tftp-servername="{{ ansible_default_ipv4.address }}" \
+        --enable-foreman-plugin-ansible \
+        --enable-foreman-proxy-plugin-ansible
+      register: output
+      args:
+        creates: /srv/tftp/pxelinux.0
+
+    - name: Link domain to smart proxy  # noqa args[module]
+      theforeman.foreman.domain:
+        name: "{{ foreman_domain_name }}"
+        dns_proxy: "{{ ansible_fqdn }}"
+
+...

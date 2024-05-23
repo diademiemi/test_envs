@@ -1,0 +1,28 @@
+---
+- name: Example playbook
+  hosts: all
+  tasks:
+    - name: Debug message
+      ansible.builtin.debug:
+        msg: "Hello World!"
+
+    - name: Write file into /tmp
+      ansible.builtin.copy:
+        content: "Hello World!"
+        dest: /tmp/hello.txt
+        mode: "0644"
+
+    - name: Write file into /root
+      become: true
+      ansible.builtin.copy:
+        content: "Hello World!"
+        dest: /root/hello.txt
+        mode: "0644"
+
+    - name: Install apt package
+      become: true
+      ansible.builtin.apt:
+        name: lolcat
+        state: present
+
+...

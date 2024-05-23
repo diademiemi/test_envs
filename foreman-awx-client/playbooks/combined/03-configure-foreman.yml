@@ -1,0 +1,25 @@
+---
+- name: Configure Foreman
+  hosts: foreman
+  module_defaults:
+    group/theforeman.foreman.foreman:
+      server_url: "{{ foreman_server_url }}"
+      username: "{{ foreman_server_username }}"
+      password: "{{ foreman_server_password }}"
+      validate_certs: "{{ foreman_validate_certs }}"
+  tasks:
+    - name: Setup PXE hostgroup  # noqa args[module]
+      theforeman.foreman.hostgroup:
+        name: "{{ foreman_hostgroup_name }}"
+        domain: "{{ foreman_hostgroup_domain | default(omit) }}"
+        subnet: "{{ foreman_hostgroup_subnet | default(omit) }}"
+        architecture: "{{ foreman_hostgroup_architecture | default(omit) }}"
+        operatingsystem: "{{ foreman_hostgroup_operatingsystem | default(omit) }}"
+        medium: "{{ foreman_hostgroup_medium | default(omit) }}"
+        ptable: "{{ foreman_hostgroup_partition_table | default(omit) }}"
+        pxe_loader: "{{ foreman_hostgroup_pxe_loader | default(omit) }}"
+        root_pass: "{{ foreman_hostgroup_root_pass | default(omit) }}"
+        parameters: "{{ foreman_hostgroup_parameters | default(omit) }}"
+        environment: "{{ foreman_hostgroup_environment | default(omit) }}"
+
+...
